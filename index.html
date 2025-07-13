@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>방탈출 게임: 수영 안전 교육</title>
+    <title>방탈출 게임: 2 STAGE CHALLENGE</title>
     <style>
-        /* CSS 코드 */
+        /* 통합 CSS 코드 */
         body, html {
             margin: 0;
             padding: 0;
@@ -13,12 +13,14 @@
             height: 100%;
             overflow: hidden;
             font-family: 'Malgun Gothic', sans-serif;
+            background-color: #000;
         }
 
         .room-container {
             position: relative;
             width: 100%;
             height: 100%;
+            display: none; /* JS로 제어 */
         }
 
         .background-image {
@@ -33,32 +35,32 @@
             border-radius: 15px;
             transition: box-shadow 0.3s ease-in-out, transform 0.2s ease, background-color 0.3s ease;
             z-index: 10;
-
-            /*
-             [수정됨] 클릭 영역을 위한 노란색 배경을 더 연하게 변경했습니다. (투명도 0.4 -> 0.2)
-             나중에 게임이 완성되면 이 아래 한 줄만 지우거나 주석 처리하세요.
-            */
+            /* 클릭 영역 표시 (개발용, 완성 후 이 줄을 지우세요.) */
             background-color: rgba(255, 255, 0, 0.2);
         }
 
         .object:hover {
-            /* [수정됨] 마우스를 올렸을 때 빛 효과도 더 연하게 변경했습니다. (투명도 0.8 -> 0.5) */
             box-shadow: 0 0 25px 10px rgba(255, 255, 0, 0.5);
-            /* [수정됨] 마우스를 올렸을 때 배경색도 더 연하게 변경했습니다. (투명도 0.6 -> 0.35) */
             background-color: rgba(255, 255, 0, 0.35);
             transform: scale(1.05);
         }
 
-        /* 각 오브젝트 위치 및 크기 설정 */
-        #beads { top: 62%; left: 47%; width: 6%; height: 9%; }
-        #bookshelf { top: 26%; left: 73%; width: 18%; height: 42%; }
-        #wizard { top: 54%; left: 19%; width: 12%; height: 22%; }
-        #potion { top: 74%; left: 79%; width: 7%; height: 13%; }
-        #fireplace { top: 68%; left: 5%; width: 14%; height: 18%; }
+        /* --- 1단계 오브젝트 위치 --- */
+        #s1-pencil-case { top: 65%; left: 35%; width: 10%; height: 10%; }
+        #s1-bookshelf { top: 28%; left: 1%; width: 22%; height: 45%; }
+        #s1-poster { top: 32%; left: 63%; width: 16%; height: 28%; }
+        #s1-school-bag { top: 58%; left: 85%; width: 13%; height: 22%; }
+        #s1-door { top: 28%; left: 25%; width: 12%; height: 46%; }
 
+        /* --- 2단계 오브젝트 위치 --- */
+        #s2-beads { top: 62%; left: 47%; width: 6%; height: 9%; }
+        #s2-bookshelf { top: 26%; left: 73%; width: 18%; height: 42%; }
+        #s2-wizard { top: 54%; left: 19%; width: 12%; height: 22%; }
+        #s2-potion { top: 74%; left: 79%; width: 7%; height: 13%; }
+        #s2-fireplace { top: 68%; left: 5%; width: 14%; height: 18%; }
 
+        /* --- 모달 공통 스타일 --- */
         .modal {
-            display: none;
             position: fixed;
             z-index: 100;
             left: 0;
@@ -84,120 +86,101 @@
             position: relative;
         }
 
+        #start-screen .modal-content input {
+            display: block; width: 80%; margin: 10px auto; padding: 12px;
+            font-size: 16px; border-radius: 5px; border: 1px solid #ccc;
+        }
+
         .close-button {
-            color: #aaa;
-            position: absolute;
-            top: 10px;
-            right: 20px;
-            font-size: 28px;
-            font-weight: bold;
+            color: #aaa; position: absolute; top: 10px; right: 20px;
+            font-size: 28px; font-weight: bold; cursor: pointer;
         }
 
-        .close-button:hover,
-        .close-button:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
+        #puzzle-body button, #submit-password, #start-game-button {
+            display: block; width: 80%; margin: 10px auto; padding: 15px;
+            font-size: 16px; border-radius: 5px; border: 1px solid #ccc;
+            background-color: #f0f0f0; cursor: pointer; transition: background-color 0.2s;
         }
 
-        #puzzle-body button, #submit-password {
-            display: block;
-            width: 80%;
-            margin: 10px auto;
-            padding: 15px;
-            font-size: 16px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            background-color: #f0f0f0;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        
-        #puzzle-body button:hover, #submit-password:hover {
+        #puzzle-body button:hover, #submit-password:hover, #start-game-button:hover {
              background-color: #ddd;
         }
 
-        #submit-password {
-            background-color: #4CAF50;
-            color: white;
+        #submit-password, #start-game-button {
+            background-color: #4CAF50; color: white; margin-top: 20px;
         }
         
-        #submit-password:hover {
+        #submit-password:hover, #start-game-button:hover {
             background-color: #45a049;
         }
 
         #password-input {
-            width: 70%;
-            padding: 15px;
-            margin: 10px auto 20px;
-            font-size: 18px;
-            text-align: center;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            width: 70%; padding: 15px; margin: 10px auto 20px;
+            font-size: 18px; text-align: center; border: 1px solid #ccc; border-radius: 5px;
         }
         
         #memory-game {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            padding: 10px;
-            justify-content: center;
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+            padding: 10px; justify-content: center;
         }
 
         .memory-card {
-            width: 60px;
-            height: 80px;
-            perspective: 1000px;
-            cursor: pointer;
+            width: 70px; height: 90px; perspective: 1000px; cursor: pointer;
         }
 
         .card-inner {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            transition: transform 0.6s;
-            transform-style: preserve-3d;
+            position: relative; width: 100%; height: 100%;
+            transition: transform 0.6s; transform-style: preserve-3d;
         }
 
-        .memory-card.flipped .card-inner {
-            transform: rotateY(180deg);
-        }
+        .memory-card.flipped .card-inner { transform: rotateY(180deg); }
 
         .card-face {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            -webkit-backface-visibility: hidden;
-            backface-visibility: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.5em;
-            border-radius: 10px;
-            border: 2px solid #555;
+            position: absolute; width: 100%; height: 100%;
+            backface-visibility: hidden; display: flex; justify-content: center;
+            align-items: center; font-size: 2.5em; border-radius: 10px; border: 2px solid #555;
         }
-
-        .card-front {
-            background-color: dodgerblue;
-        }
-
-        .card-back {
-            background-color: lightcoral;
-            transform: rotateY(180deg);
-        }
+        
+        .s1-card-front { background-color: #FFD700; }
+        .s1-card-back { background-color: #FFA07A; transform: rotateY(180deg); }
+        .s2-card-front { background-color: dodgerblue; }
+        .s2-card-back { background-color: lightcoral; transform: rotateY(180deg); }
     </style>
 </head>
 <body>
-    <div class="room-container">
-        <img src="https://raw.githubusercontent.com/leesinwhi/experimental-mouse_1/refs/heads/main/IMAGE1.jpg" alt="방 배경" class="background-image">
-        
-        <div class="object" id="beads"></div>
-        <div class="object" id="bookshelf"></div>
-        <div class="object" id="wizard"></div>
-        <div class="object" id="potion"></div>
-        <div class="object" id="fireplace"></div>
+    <!-- 시작 화면 모달 -->
+    <div id="start-screen" class="modal" style="display: flex;">
+        <div class="modal-content">
+            <h2>방탈출 챌린지</h2>
+            <p>도전을 시작하기 전에 이름, 학년, 반을 알려주세요.</p>
+            <input type="text" id="player-name" placeholder="이름" required>
+            <input type="number" id="player-grade" placeholder="학년" required>
+            <input type="number" id="player-class" placeholder="반" required>
+            <button id="start-game-button">게임 시작</button>
+        </div>
     </div>
 
+    <!-- 1단계: 성폭력 예방 교실 -->
+    <div id="stage1-container" class="room-container">
+        <img src="https://raw.githubusercontent.com/leesinwhi/experimental-mouse_1/refs/heads/main/Whisk_4857bb6ffa.jpg" alt="교실 배경" class="background-image">
+        <div class="object" id="s1-pencil-case"></div>
+        <div class="object" id="s1-bookshelf"></div>
+        <div class="object" id="s1-poster"></div>
+        <div class="object" id="s1-school-bag"></div>
+        <div class="object" id="s1-door"></div>
+    </div>
+
+    <!-- 2단계: 수영 안전 교육 -->
+    <div id="stage2-container" class="room-container">
+        <img src="https://raw.githubusercontent.com/leesinwhi/experimental-mouse_1/refs/heads/main/IMAGE1.jpg" alt="마법사 방 배경" class="background-image">
+        <div class="object" id="s2-beads"></div>
+        <div class="object" id="s2-bookshelf"></div>
+        <div class="object" id="s2-wizard"></div>
+        <div class="object" id="s2-potion"></div>
+        <div class="object" id="s2-fireplace"></div>
+    </div>
+
+    <!-- 공용 퀴즈/게임 모달 -->
     <div id="puzzle-modal" class="modal" style="display: none;">
         <div class="modal-content">
             <span class="close-button">×</span>
@@ -206,156 +189,247 @@
         </div>
     </div>
 
+    <!-- 공용 비밀번호 모달 -->
     <div id="password-modal" class="modal" style="display: none;">
         <div class="modal-content">
             <span class="close-button">×</span>
-            <h2>아궁이</h2>
+            <h2 id="password-title"></h2>
             <p>탈출하려면 비밀번호를 입력하세요.</p>
-            <input type="text" id="password-input" placeholder="비밀번호 4자리" maxlength="4">
+            <input type="text" id="password-input" placeholder="비밀번호 4자리" maxlength="4" pattern="\d*">
             <button id="submit-password">탈출</button>
         </div>
     </div>
 
     <script>
-        // JavaScript 코드는 변경할 필요가 없습니다.
         document.addEventListener('DOMContentLoaded', () => {
-            const objects = {
-                beads: document.getElementById('beads'),
-                bookshelf: document.getElementById('bookshelf'),
-                wizard: document.getElementById('wizard'),
-                potion: document.getElementById('potion'),
-                fireplace: document.getElementById('fireplace')
-            };
+            // --- 공통 변수 및 요소 ---
+            let playerData = {};
+            let currentStage = 1; 
+            const hints = { stage1: {}, stage2: {} };
+
+            const startScreen = document.getElementById('start-screen');
+            const startGameButton = document.getElementById('start-game-button');
+            const playerNameInput = document.getElementById('player-name');
+            const playerGradeInput = document.getElementById('player-grade');
+            const playerClassInput = document.getElementById('player-class');
+            
+            const stage1Container = document.getElementById('stage1-container');
+            const stage2Container = document.getElementById('stage2-container');
 
             const puzzleModal = document.getElementById('puzzle-modal');
             const passwordModal = document.getElementById('password-modal');
             const closeButtons = document.querySelectorAll('.close-button');
+            
             const puzzleTitle = document.getElementById('puzzle-title');
             const puzzleBody = document.getElementById('puzzle-body');
+            const passwordTitle = document.getElementById('password-title');
             const passwordInput = document.getElementById('password-input');
             const submitPassword = document.getElementById('submit-password');
 
-            const hints = {};
-
+            // --- 모달 관리 함수 ---
             const openModal = (modal) => { modal.style.display = 'flex'; };
             const closeModal = () => {
                 puzzleModal.style.display = 'none';
                 passwordModal.style.display = 'none';
+                passwordInput.value = '';
+            };
+            
+            const handleWrongAnswer = () => alert('틀렸습니다. 다시 한번 잘 생각해 보세요.');
+
+            // --- 1단계 오브젝트 및 이벤트 ---
+            const s1_objects = {
+                pencilCase: document.getElementById('s1-pencil-case'),
+                bookshelf: document.getElementById('s1-bookshelf'),
+                poster: document.getElementById('s1-poster'),
+                schoolBag: document.getElementById('s1-school-bag'),
+                door: document.getElementById('s1-door')
             };
 
-            objects.beads.addEventListener('click', () => {
-                alert('힌트: 비밀번호 네 자리 중 첫 번째 숫자는 3입니다.');
-                hints['first'] = '3';
+            s1_objects.pencilCase.addEventListener('click', () => {
+                alert('힌트: 1단계 비밀번호 첫 번째 숫자는 [ 7 ] 입니다.');
+                hints.stage1['first'] = '7';
+            });
+            s1_objects.bookshelf.addEventListener('click', () => {
+                puzzleTitle.textContent = '1단계 - 예방 퀴즈 1';
+                puzzleBody.innerHTML = `
+                    <p>나의 몸에 대해 불편한 느낌이 들게 하는 행동을<br>다른 사람이 할 때, 어떻게 해야 할까요?</p>
+                    <button>친한 사이에는 괜찮다고 생각한다</button>
+                    <button class="correct">싫다고 분명히 말하고, 어른에게 알린다</button>
+                    <button>무서우니 참고 가만히 있는다</button>`;
+                openModal(puzzleModal);
+                puzzleBody.querySelector('.correct').onclick = () => {
+                    if (!hints.stage1['second']) {
+                        alert('정답입니다! 두 번째 비밀번호는 [ 1 ] 입니다.');
+                        hints.stage1['second'] = '1';
+                    } else { alert('이미 힌트를 얻었습니다.'); }
+                    closeModal();
+                };
+                puzzleBody.querySelectorAll('button:not(.correct)').forEach(btn => { btn.onclick = handleWrongAnswer; });
+            });
+            s1_objects.poster.addEventListener('click', () => {
+                puzzleTitle.textContent = '1단계 - 예방 퀴즈 2';
+                puzzleBody.innerHTML = `
+                    <p>어렵고 힘든 일이 있을 때, 도움을 요청할 수 있는<br>가장 올바른 곳은 어디일까요?</p>
+                    <button class="correct">부모님, 선생님, 117 신고센터</button>
+                    <button>혼자서 해결하려고 노력한다</button>
+                    <button>아무에게도 말하지 않는다</button>`;
+                openModal(puzzleModal);
+                puzzleBody.querySelector('.correct').onclick = () => {
+                    if (!hints.stage1['third']) {
+                        alert('정답입니다! 세 번째 비밀번호는 [ 7 ] 입니다.');
+                        hints.stage1['third'] = '7';
+                    } else { alert('이미 힌트를 얻었습니다.'); }
+                    closeModal();
+                };
+                puzzleBody.querySelectorAll('button:not(.correct)').forEach(btn => { btn.onclick = handleWrongAnswer; });
+            });
+            s1_objects.schoolBag.addEventListener('click', () => {
+                if (hints.stage1['fourth']) { alert('이미 미니게임을 완료했습니다.'); return; }
+                puzzleTitle.textContent = '1단계 - 도움 요청 카드 맞추기';
+                puzzleBody.innerHTML = '<h4>같은 그림의 카드를 찾아 맞추세요!</h4><div id="memory-game"></div>';
+                createMemoryGame(1);
+                openModal(puzzleModal);
+            });
+            s1_objects.door.addEventListener('click', () => {
+                passwordTitle.textContent = "교실 문";
+                openModal(passwordModal);
             });
 
-            objects.bookshelf.addEventListener('click', () => {
-                puzzleTitle.textContent = '수영 안전 퀴즈 1';
+            // --- 2단계 오브젝트 및 이벤트 ---
+            const s2_objects = {
+                beads: document.getElementById('s2-beads'),
+                bookshelf: document.getElementById('s2-bookshelf'),
+                wizard: document.getElementById('s2-wizard'),
+                potion: document.getElementById('s2-potion'),
+                fireplace: document.getElementById('s2-fireplace')
+            };
+
+            s2_objects.beads.addEventListener('click', () => {
+                alert('힌트: 2단계 비밀번호 첫 번째 숫자는 3입니다.');
+                hints.stage2['first'] = '3';
+            });
+            s2_objects.bookshelf.addEventListener('click', () => {
+                puzzleTitle.textContent = '2단계 - 수영 안전 퀴즈 1';
                 puzzleBody.innerHTML = `
                     <p>수영장에서 물에 들어가기 전, 반드시 해야 하는 것은 무엇일까요?</p>
                     <button>맛있는 간식 먹기</button>
                     <button class="correct">충분한 준비운동 하기</button>
-                    <button>친구와 바로 물장구치기</button>
-                `;
+                    <button>친구와 바로 물장구치기</button>`;
                 openModal(puzzleModal);
-
                 puzzleBody.querySelector('.correct').onclick = () => {
-                    if (!hints['second']) {
+                    if (!hints.stage2['second']) {
                         alert('정답입니다! 두 번째 비밀번호는 4입니다.');
-                        hints['second'] = '4';
-                    } else {
-                        alert('이미 힌트를 얻었습니다.');
-                    }
+                        hints.stage2['second'] = '4';
+                    } else { alert('이미 힌트를 얻었습니다.'); }
                     closeModal();
                 };
-                 puzzleBody.querySelectorAll('button:not(.correct)').forEach(btn => {
-                    btn.onclick = () => alert('틀렸습니다. 다시 생각해 보세요.');
-                });
+                puzzleBody.querySelectorAll('button:not(.correct)').forEach(btn => { btn.onclick = () => alert('틀렸습니다. 다시 생각해보세요.'); });
             });
-
-            objects.wizard.addEventListener('click', () => {
-                puzzleTitle.textContent = '수영 안전 퀴즈 2';
+            s2_objects.wizard.addEventListener('click', () => {
+                puzzleTitle.textContent = '2단계 - 수영 안전 퀴즈 2';
                 puzzleBody.innerHTML = `
                     <p>물에 빠진 사람을 발견했을 때, 가장 먼저 해야 할 올바른 행동은 무엇일까요?</p>
                     <button class="correct">어른에게 알리고 119에 신고하기</button>
                     <button>아무도 모르게 조용히 있는다</button>
-                    <button>내가 직접 구하기 위해 물에 뛰어든다</button>
-                `;
+                    <button>내가 직접 구하기 위해 물에 뛰어든다</button>`;
                 openModal(puzzleModal);
-                
                 puzzleBody.querySelector('.correct').onclick = () => {
-                    if (!hints['third']) {
+                    if (!hints.stage2['third']) {
                         alert('정답입니다! 세 번째 비밀번호는 0입니다.');
-                        hints['third'] = '0';
-                    } else {
-                        alert('이미 힌트를 얻었습니다.');
-                    }
+                        hints.stage2['third'] = '0';
+                    } else { alert('이미 힌트를 얻었습니다.'); }
                     closeModal();
                 };
-                puzzleBody.querySelectorAll('button:not(.correct)').forEach(btn => {
-                    btn.onclick = () => alert('틀렸습니다. 위험한 행동이에요!');
-                });
+                puzzleBody.querySelectorAll('button:not(.correct)').forEach(btn => { btn.onclick = () => alert('틀렸습니다. 위험한 행동이에요!'); });
             });
-
-            objects.potion.addEventListener('click', () => {
-                if (hints['fourth']) {
-                    alert('이미 미니게임을 완료했습니다.');
-                    return;
-                }
-                puzzleTitle.textContent = '메모리 카드 게임';
+            s2_objects.potion.addEventListener('click', () => {
+                if (hints.stage2['fourth']) { alert('이미 미니게임을 완료했습니다.'); return; }
+                puzzleTitle.textContent = '2단계 - 안전 수칙 카드 맞추기';
                 puzzleBody.innerHTML = '<h4>같은 안전 수칙 카드를 맞추세요!</h4><div id="memory-game"></div>';
-                createMemoryGame();
+                createMemoryGame(2);
                 openModal(puzzleModal);
             });
-            
-            objects.fireplace.addEventListener('click', () => {
+            s2_objects.fireplace.addEventListener('click', () => {
+                passwordTitle.textContent = "마법 아궁이";
                 openModal(passwordModal);
             });
 
-            submitPassword.addEventListener('click', () => {
-                if (passwordInput.value === '3405') {
-                    alert('축하합니다! 방을 탈출했습니다!');
-                    closeModal();
+            // --- 게임 시작 및 흐름 제어 ---
+            startGameButton.addEventListener('click', () => {
+                const name = playerNameInput.value.trim();
+                const grade = playerGradeInput.value.trim();
+                const classNum = playerClassInput.value.trim();
+
+                if (name && grade && classNum) {
+                    playerData = { name, grade, classNum };
+                    startScreen.style.display = 'none';
+                    stage1Container.style.display = 'block';
                 } else {
-                    alert('비밀번호가 틀렸습니다. 얻은 힌트들을 다시 확인해보세요.');
+                    alert('이름, 학년, 반을 모두 입력해주세요.');
+                }
+            });
+            
+            submitPassword.addEventListener('click', () => {
+                if (currentStage === 1) {
+                    if (passwordInput.value === '7179') {
+                        alert(`축하합니다, ${playerData.name} 학생! 1단계를 클리어했습니다.\n이제 다음 장소로 이동합니다!`);
+                        closeModal();
+                        // 스테이지 전환
+                        stage1Container.style.display = 'none';
+                        stage2Container.style.display = 'block';
+                        currentStage = 2;
+                    } else {
+                        alert('1단계 비밀번호가 틀렸습니다. 얻은 힌트들을 다시 확인해보세요.');
+                    }
+                } else if (currentStage === 2) {
+                    if (passwordInput.value === '3405') {
+                        alert(`최종 탈출 성공! 축하합니다, ${playerData.name} 학생!\n모든 안전 교육 챌린지를 완료했습니다!`);
+                        closeModal();
+                        // 게임 종료 처리 (예: 첫 화면으로 돌아가기)
+                        setTimeout(() => location.reload(), 2000);
+                    } else {
+                        alert('2단계 비밀번호가 틀렸습니다. 새로운 방의 힌트들을 찾아보세요.');
+                    }
                 }
             });
 
-            closeButtons.forEach(button => {
-                button.onclick = () => closeModal();
-            });
-
+            // --- 공용 기능 ---
+            closeButtons.forEach(button => { button.onclick = () => closeModal(); });
             window.onclick = (event) => {
                 if (event.target == puzzleModal || event.target == passwordModal) {
                     closeModal();
                 }
             };
             
-            function createMemoryGame() {
+            function createMemoryGame(stage) {
                 const gameBoard = document.getElementById('memory-game');
                 gameBoard.innerHTML = '';
                 
-                const cardsArray = ['🏊', '🏊', '🦺', '🦺', '🆘', '🆘', '🚫🍻', '🚫🍻'];
-                cardsArray.sort(() => 0.5 - Math.random());
+                const s1_cards = ['🙅', '🙅', '🗣️', '🗣️', '🤝', '🤝', '❤️', '❤️'];
+                const s2_cards = ['🏊', '🏊', '🦺', '🦺', '🆘', '🆘', '🚫', '🚫'];
+                const cardsArray = (stage === 1) ? s1_cards : s2_cards;
+                const cardFrontClass = (stage === 1) ? 's1-card-front' : 's2-card-front';
+                const cardBackClass = (stage === 1) ? 's1-card-back' : 's2-card-back';
+                const successAlert = (stage === 1)
+                    ? '미니게임 성공! 1단계 마지막 비밀번호는 [ 9 ] 입니다.'
+                    : '미니게임 성공! 2단계 마지막 비밀번호는 5입니다.';
+                const hintKey = (stage === 1) ? '9' : '5';
 
-                let flippedCards = [];
-                let matchedPairs = 0;
-                let lockBoard = false;
+                cardsArray.sort(() => 0.5 - Math.random());
+                let flippedCards = [], matchedPairs = 0, lockBoard = false;
 
                 cardsArray.forEach(cardValue => {
                     const card = document.createElement('div');
                     card.classList.add('memory-card');
                     card.dataset.value = cardValue;
-
                     card.innerHTML = `
                         <div class="card-inner">
-                            <div class="card-face card-front"></div>
-                            <div class="card-face card-back">${cardValue}</div>
-                        </div>
-                    `;
+                            <div class="card-face ${cardFrontClass}"></div>
+                            <div class="card-face ${cardBackClass}">${cardValue}</div>
+                        </div>`;
                     
                     card.addEventListener('click', () => {
                         if (lockBoard || card.classList.contains('flipped')) return;
-
                         card.classList.add('flipped');
                         flippedCards.push(card);
 
@@ -367,8 +441,8 @@
                                 lockBoard = false;
                                 if (matchedPairs === cardsArray.length / 2) {
                                     setTimeout(() => {
-                                        alert('미니게임 성공! 마지막 비밀번호는 5입니다.');
-                                        hints['fourth'] = '5';
+                                        alert(successAlert);
+                                        hints[`stage${stage}`]['fourth'] = hintKey;
                                         closeModal();
                                     }, 500);
                                 }
@@ -387,4 +461,4 @@
         });
     </script>
 </body>
-</html>RFERFFREW
+</html>
